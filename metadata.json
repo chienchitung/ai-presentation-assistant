@@ -1,0 +1,5 @@
+{
+  "name": "AI Presentation Assistant",
+  "description": "An AI-powered tool that transforms documents into beautiful presentations. Upload a text or markdown file, and let AI generate a structured outline, create slides, and help you refine the content. Features include template selection, an in-app editor, and PDF export.",
+  "requestFramePermissions": []
+}
