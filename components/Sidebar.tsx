@@ -19,20 +19,20 @@ const SlideThumbnail: React.FC<{ slide: Slide; template: PresentationTemplate; s
         style={{
           transform: `scale(${THUMBNAIL_SCALE})`,
           transformOrigin: 'top left',
-          width: '1280px',
-          height: '720px',
         }}
       >
-        <SlidePreview
-          slide={slide}
-          template={template}
-          onUpdate={() => {}}
-          onRefine={() => {}}
-          onAddImage={() => {}}
-          slideIndex={-1}
-          isExporting={true}
-          strings={strings}
-        />
+        <div style={{ width: '1280px', height: '720px' }}>
+            <SlidePreview
+              slide={slide}
+              template={template}
+              onUpdate={() => {}}
+              onRefine={() => {}}
+              onAddImage={() => {}}
+              slideIndex={-1}
+              viewMode="canvas"
+              strings={strings}
+            />
+        </div>
       </div>
     </div>
 ));
@@ -81,26 +81,26 @@ const Sidebar: React.FC<SidebarProps> = ({ slides, selectedSlideIndex, onSelectS
               onDrop={(e) => handleDrop(e, index)}
               onDragEnd={() => setDraggedIndex(null)}
               onClick={() => onSelectSlide(index)}
-              className={`relative group flex items-center gap-4 p-2 rounded-lg cursor-pointer transition-all ${draggedIndex === index ? 'opacity-40' : ''}`}
+              className={`group flex items-center gap-4 p-2 rounded-lg cursor-pointer transition-all ${draggedIndex === index ? 'opacity-40' : ''}`}
             >
               <span className="text-4xl font-light text-slate-400 dark:text-slate-500 w-12 text-center select-none">{index + 1}</span>
-              <div className="flex-1">
+              <div className="flex-1 relative">
                 <div
-                    className={`rounded-lg overflow-hidden transition-all p-1 border-4 ${selectedSlideIndex === index ? 'border-indigo-500' : 'border-transparent'}`}
+                    className={`rounded-lg overflow-hidden transition-all p-1 border-4 ${selectedSlideIndex === index ? 'border-indigo-500' : 'border-transparent group-hover:border-indigo-500/50'}`}
                 >
                     <SlideThumbnail slide={slide} template={template} strings={strings} />
                 </div>
+                 <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteSlide(index);
+                    }}
+                    className="absolute top-0 left-0 w-7 h-7 bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xl font-bold leading-none z-10 hover:bg-red-500 transform -translate-y-1/2 -translate-x-1/2"
+                    title={strings.deleteSlide}
+                >
+                    &times;
+                </button>
               </div>
-              <button
-                onClick={(e) => {
-                    e.stopPropagation();
-                    onDeleteSlide(index);
-                }}
-                className="absolute top-3 right-3 w-6 h-6 bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-sm z-10 hover:bg-red-500"
-                title={strings.deleteSlide}
-              >
-                &times;
-              </button>
             </div>
           ))}
         </div>

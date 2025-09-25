@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Presentation, Strings } from '../types';
 import { TRANSITIONS } from '../constants';
 import SlidePreview from './SlidePreview';
@@ -11,6 +11,8 @@ interface PresentationViewProps {
 
 const PresentationView: React.FC<PresentationViewProps> = ({ presentation, onExit, strings }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     if (event.key === 'ArrowRight' || event.key === ' ') {
@@ -22,10 +24,28 @@ const PresentationView: React.FC<PresentationViewProps> = ({ presentation, onExi
     }
   }, [presentation.slides.length, onExit]);
 
+  const updateScale = useCallback(() => {
+      if (containerRef.current) {
+          const { width, height } = containerRef.current.getBoundingClientRect();
+          const scaleX = width / 1280;
+          const scaleY = height / 720;
+          setScale(Math.min(scaleX, scaleY));
+      }
+  }, []);
+
+  useEffect(() => {
+      updateScale();
+      window.addEventListener('resize', updateScale);
+      return () => {
+        window.removeEventListener('resize', updateScale);
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+  }, [updateScale, handleKeyDown]);
+
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+        window.removeEventListener('keydown', handleKeyDown);
     };
   }, [handleKeyDown]);
 
@@ -34,21 +54,24 @@ const PresentationView: React.FC<PresentationViewProps> = ({ presentation, onExi
 
   return (
     <div className="fixed inset-0 bg-slate-900 z-50 flex flex-col">
-      <div className="flex-grow flex items-center justify-center p-4 relative overflow-hidden">
-        <div key={currentIndex} className={`w-full h-full flex items-center justify-center ${transitionClass}`}>
-            <div className="aspect-video max-w-full max-h-full w-full shadow-2xl rounded-lg overflow-hidden bg-black">
-                <SlidePreview
-                    slide={currentSlide}
-                    template={presentation.template}
-                    onUpdate={() => {}}
-                    onRefine={() => {}}
-                    onAddImage={() => {}}
-                    slideIndex={currentIndex}
-                    isExporting={true}
-                    isPresenting={true}
-                    strings={strings}
-                />
-            </div>
+      <div ref={containerRef} className="flex-grow flex items-center justify-center p-4 overflow-hidden">
+        <div
+          key={currentIndex}
+          className={transitionClass}
+          style={{ transform: `scale(${scale})`, transformOrigin: 'center' }}
+        >
+          <div className="w-[1280px] h-[720px] shadow-2xl rounded-lg overflow-hidden">
+            <SlidePreview
+                slide={currentSlide}
+                template={presentation.template}
+                onUpdate={() => {}}
+                onRefine={() => {}}
+                onAddImage={() => {}}
+                slideIndex={currentIndex}
+                viewMode='canvas'
+                strings={strings}
+            />
+          </div>
         </div>
       </div>
       <footer className="flex-shrink-0 bg-black/30 text-white p-3 flex items-center justify-between">

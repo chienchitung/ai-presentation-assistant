@@ -5,7 +5,6 @@ import Sidebar from './Sidebar';
 import SlidePreview from './SlidePreview';
 import RefineModal from './RefineModal';
 import ImageGenerationModal from './ImageGenerationModal';
-import TransitionSelector from './TransitionSelector';
 import PresentationView from './PresentationView';
 import { TRANSITIONS } from '../constants';
 import { refineText, generateImage } from '../services/aiService';
@@ -153,15 +152,6 @@ const Editor: React.FC<EditorProps> = ({ initialPresentation, onNewPresentation,
           strings={strings}
         />
         <main className="flex-grow flex flex-col items-center justify-center p-8 bg-slate-100 dark:bg-slate-800 overflow-auto">
-          <div className="w-full max-w-6xl mb-4 flex justify-end">
-            {selectedSlide && (
-              <TransitionSelector
-                selectedTransition={selectedSlide.transition}
-                onSelectTransition={handleTransitionChange}
-                strings={strings}
-              />
-            )}
-          </div>
           <div key={selectedSlideIndex} className={`w-full max-w-6xl ${transitionClass}`}>
             {selectedSlide && (
               <SlidePreview
@@ -171,7 +161,10 @@ const Editor: React.FC<EditorProps> = ({ initialPresentation, onNewPresentation,
                 onRefine={handleRefineClick}
                 onAddImage={() => handleOpenImageGenerator(selectedSlideIndex)}
                 slideIndex={selectedSlideIndex}
+                viewMode="editor"
                 strings={strings}
+                selectedTransition={selectedSlide.transition}
+                onSelectTransition={handleTransitionChange}
               />
             )}
           </div>
@@ -221,7 +214,7 @@ const Editor: React.FC<EditorProps> = ({ initialPresentation, onNewPresentation,
               onRefine={() => {}}
               onAddImage={() => {}}
               slideIndex={index}
-              isExporting={true}
+              viewMode="canvas"
               strings={strings}
             />
           </div>
